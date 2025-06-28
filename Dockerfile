@@ -25,8 +25,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copiar código da aplicação
-COPY main.py .
-COPY config.py .
+COPY main.py config.py ./
 
 # Criar diretório para uploads temporários
 RUN mkdir -p /tmp/uploads
