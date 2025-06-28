@@ -4,8 +4,6 @@ services:
   whisper-api:
     build: .
     container_name: faster-whisper-api
-    ports:
-      - "8000:8000"
     environment:
       - OMP_NUM_THREADS=4
     volumes:
