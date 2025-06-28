@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copiar código da aplicação
 COPY main.py .
+COPY config.py .
 
 # Criar diretório para uploads temporários
 RUN mkdir -p /tmp/uploads
