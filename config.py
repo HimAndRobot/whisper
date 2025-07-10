@@ -19,12 +19,13 @@ class Config:
     
     # Configurações de performance
     MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", "100")) * 1024 * 1024  # 100MB
-    OMP_NUM_THREADS: int = int(os.getenv("OMP_NUM_THREADS", "4"))
+    OMP_NUM_THREADS: int = int(os.getenv("OMP_NUM_THREADS", "16"))
     
     # Configurações de transcrição padrão
-    DEFAULT_BEAM_SIZE: int = int(os.getenv("DEFAULT_BEAM_SIZE", "5"))
-    DEFAULT_VAD_FILTER: bool = os.getenv("DEFAULT_VAD_FILTER", "true").lower() == "true"
-    DEFAULT_WORD_TIMESTAMPS: bool = os.getenv("DEFAULT_WORD_TIMESTAMPS", "false").lower() == "true"
+    DEFAULT_BEAM_SIZE: int = 1
+    DEFAULT_VAD_FILTER: bool = True
+    DEFAULT_WORD_TIMESTAMPS: bool = False
+    DEFAULT_LANGUAGE: str = os.getenv("DEFAULT_LANGUAGE", "pt")  # Idioma padrão
     
     # Configurações de segurança
     ALLOWED_EXTENSIONS: list = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac']

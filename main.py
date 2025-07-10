@@ -5,9 +5,9 @@ from faster_whisper import WhisperModel
 import tempfile
 import os
 import logging
-from typing import Optional
+from typing import Optional, List
 import uvicorn
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from config import config
 
 # Configurar logging
@@ -16,8 +16,31 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Faster-Whisper API",
-    description="API para transcrição de áudio usando faster-whisper",
-    version="1.0.0"
+    description="""
+    ## API para transcrição de áudio usando faster-whisper
+    
+    Esta API permite transcrever arquivos de áudio em texto usando o modelo Whisper.
+    
+    ### Funcionalidades:
+    - **Transcrição individual**: Transcreva um arquivo de áudio
+    - **Transcrição em lote**: Transcreva múltiplos arquivos de uma vez
+    - **Detecção automática de idioma**: Detecta automaticamente o idioma do áudio
+    - **Timestamps**: Opção para incluir timestamps de palavras
+    - **Filtro VAD**: Remove automaticamente silêncios
+    
+    ### Formatos suportados:
+    MP3, WAV, M4A, OGG, FLAC, AAC
+    """,
+    version="1.0.0",
+    contact={
+        "name": "Suporte API",
+        "url": "https://github.com/seu-usuario/whisper",
+        "email": "suporte@exemplo.com",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
 # Configurar CORS
@@ -49,23 +72,25 @@ model = WhisperModel(
 logger.info("Modelo carregado com sucesso!")
 
 class TranscriptionResponse(BaseModel):
-    text: str
-    language: str
-    language_probability: float
-    segments: list
+    text: str = Field(..., description="Texto transcrito completo")
+    language: str = Field(..., description="Idioma detectado (código ISO)")
+    language_probability: float = Field(..., description="Probabilidade do idioma detectado")
+    segments: List[dict] = Field(..., description="Lista de segmentos com timestamps")
 
 class TranscriptionOptions(BaseModel):
-    beam_size: Optional[int] = 5
-    language: Optional[str] = None
-    word_timestamps: Optional[bool] = False
-    vad_filter: Optional[bool] = True
+    beam_size: Optional[int] = Field(5, description="Tamanho do beam para busca")
+    language: Optional[str] = Field(None, description="Idioma do áudio (código ISO)")
+    word_timestamps: Optional[bool] = Field(False, description="Incluir timestamps de palavras")
+    vad_filter: Optional[bool] = Field(True, description="Usar filtro VAD para remover silêncio")
 
 @app.get("/")
 async def root():
+    """Endpoint raiz da API"""
     return {"message": "Faster-Whisper API está funcionando!"}
 
 @app.get("/health")
 async def health_check():
+    """Verificar saúde da API"""
     model_info = config.get_model_info()
     return {
         "status": "healthy",
@@ -89,7 +114,7 @@ async def transcribe_audio(
     """
     Transcrever áudio para texto
     
-    - **file**: Arquivo de áudio (MP3, WAV, M4A, etc.)
+    - **file**: Arquivo de áudio (MP3, WAV, M4A, OGG, FLAC, AAC)
     - **beam_size**: Tamanho do beam para busca (padrão: 5)
     - **language**: Idioma do áudio (auto-detectado se não especificado)
     - **word_timestamps**: Incluir timestamps de palavras
@@ -176,9 +201,11 @@ async def transcribe_audio(
         raise HTTPException(status_code=500, detail=f"Erro na transcrição: {str(e)}")
 
 @app.post("/transcribe-batch")
-async def transcribe_batch(files: list[UploadFile] = File(...)):
+async def transcribe_batch(files: List[UploadFile] = File(...)):
     """
     Transcrever múltiplos arquivos de áudio
+    
+    Transcreve vários arquivos de áudio em uma única requisição.
     """
     results = []
     
