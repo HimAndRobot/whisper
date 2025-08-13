@@ -13,7 +13,7 @@ class Config:
     PORT: int = int(os.getenv("PORT", "8000"))
     
     # Configurações do Whisper
-    WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "large")
+    WHISPER_MODEL: str = os.getenv("WHISPER_MODEL", "large-v3")
     WHISPER_DEVICE: str = os.getenv("WHISPER_DEVICE", "cpu")
     WHISPER_COMPUTE_TYPE: str = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
     
